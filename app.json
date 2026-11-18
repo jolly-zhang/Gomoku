@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "五子棋",
+    "slug": "gomoku",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/images/icon.png",
+    "scheme": "gomoku",
+    "userInterfaceStyle": "light",
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-audio"
+    ]
+  }
+}
