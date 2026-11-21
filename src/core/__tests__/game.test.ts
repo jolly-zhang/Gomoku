@@ -1,7 +1,7 @@
 // 对局状态机单元测试：落子 / 禁手拒绝 / 悔棋 / 重开 / 终局锁定
 import { describe, expect, it } from 'vitest';
 
-import { createEmptyBoard } from '../board';
+import { BOARD_SIZE, createEmptyBoard } from '../board';
 import type { GameState } from '../game';
 import { createInitialState, placeStone, restart, undoStone } from '../game';
 import type { Player } from '../types';
@@ -64,6 +64,47 @@ describe('placeStone 落子', () => {
       // 终局锁定，不能继续落子
       expect(placeStone(p.state, 10, 10).ok).toBe(false);
     }
+  });
+
+  it('越界位置拒绝落子', () => {
+    const s = createInitialState();
+    const r = placeStone(s, -1, 0);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toBe('outOfBounds');
+    const r2 = placeStone(s, BOARD_SIZE, BOARD_SIZE);
+    expect(r2.ok).toBe(false);
+    if (!r2.ok) expect(r2.reason).toBe('outOfBounds');
+  });
+
+  it('白方成五判白胜', () => {
+    const s = makeState(
+      [],
+      [
+        [7, 4],
+        [7, 5],
+        [7, 6],
+        [7, 8],
+      ],
+      'white',
+    );
+    const p = placeStone(s, 7, 7);
+    expect(p.ok).toBe(true);
+    if (p.ok) expect(p.state.status).toBe('whiteWin');
+  });
+
+  it('满盘无五连判平局', () => {
+    const board = createEmptyBoard();
+    // 用「无 5 连」的 4 周期填色铺满，留 (7,7) 作最后一手
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        board[r][c] = (r + 2 * c) % 4 < 2 ? 'black' : 'white';
+      }
+    }
+    board[7][7] = null;
+    const s: GameState = { board, currentPlayer: 'black', status: 'playing', moves: [], lastMove: null };
+    const p = placeStone(s, 7, 7);
+    expect(p.ok).toBe(true);
+    if (p.ok) expect(p.state.status).toBe('draw');
   });
 });
 

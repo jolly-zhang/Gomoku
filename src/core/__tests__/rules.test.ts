@@ -66,6 +66,16 @@ describe('checkWin 胜负判定', () => {
     // 7,7 落下后：7,4..7,8 为 5 连，仍是胜（右侧无阻挡）
     expect(checkWin(board, 7, 7, 'black')).toBe(true);
   });
+
+  it('边界成五判胜', () => {
+    const board = makeBoard([
+      [0, 0],
+      [0, 1],
+      [0, 2],
+      [0, 3],
+    ]);
+    expect(checkWin(board, 0, 4, 'black')).toBe(true);
+  });
 });
 
 describe('checkForbidden 禁手判定', () => {
@@ -175,6 +185,21 @@ describe('checkForbidden 禁手判定', () => {
 
   it('空点、无任何威胁不是禁手', () => {
     const board = makeBoard([]);
+    expect(checkForbidden(board, 7, 7)).toBe(null);
+  });
+
+  it('四三（冲四 + 活三）不是禁手', () => {
+    // 横：7,5-7,8 为冲四（右端 7,9 被白子挡）；斜 ↘：5,5-7,7 为活三
+    const board = makeBoard(
+      [
+        [7, 5],
+        [7, 6],
+        [7, 8],
+        [5, 5],
+        [6, 6],
+      ],
+      [[7, 9]],
+    );
     expect(checkForbidden(board, 7, 7)).toBe(null);
   });
 });
